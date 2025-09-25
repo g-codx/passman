@@ -1,0 +1,27 @@
+[package]
+name = "passman"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.143"
+thiserror = "2.0.16"
+
+aes-gcm = { version = "0.10.3", features = ["std"] }
+secrecy = "0.10.3"
+argon2 = "0.5.3"
+uuid = { version = "1.18.1", features = ["v4"] }
+rand = "0.9.2"
+
+dialoguer = { version = "0.12.0", optional = true }
+
+[features]
+cli = ["dialoguer"]
+
+[[bin]]
+name = "passman_cmd"
+path = "./src/bin/cmd.rs"
+required-features = ["cli"]
+
+
