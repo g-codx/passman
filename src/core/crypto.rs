@@ -1,4 +1,4 @@
-use crate::error;
+use crate::core::error;
 use aes_gcm::{
     Aes256Gcm, Nonce,
     aead::{Aead, AeadCore, KeyInit, OsRng},
@@ -170,9 +170,7 @@ pub fn generate_password(length: usize) -> String {
 
 #[cfg(test)]
 mod crypto_tests {
-    use crate::crypto::{decrypt_aes256gcm, derive_key, encrypt_aes256gcm, generate_password};
-    use crate::error;
-    use secrecy::SecretString;
+    use super::*;
 
     #[test]
     fn derive_test() {

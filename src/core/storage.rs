@@ -1,5 +1,5 @@
-use crate::entry::Entry;
-use crate::{FILE, crypto, error};
+use crate::core::entry::Entry;
+use crate::core::{FILE, crypto, error};
 use aes_gcm::aead::OsRng;
 use aes_gcm::aead::rand_core::RngCore;
 use std::fs;

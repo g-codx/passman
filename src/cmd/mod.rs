@@ -1,18 +1,18 @@
+use crate::core::entry::Entry;
+use crate::core::{crypto, storage};
 use dialoguer::{Input, Password, Select};
-use passman::entry::Entry;
 use secrecy::SecretString;
 use std::path::Path;
 use uuid::Uuid;
 
-//cargo run --bin passman_cmd --release --features cli
-fn main() {
-    let (master, salt) = if Path::new(passman::FILE).exists() {
+pub fn run() {
+    let (master, salt) = if Path::new(crate::core::FILE).exists() {
         let master = Password::new()
             .with_prompt("Enter master password")
             .interact()
             .expect("Failed to read master password");
 
-        let salt = passman::storage::try_get_salt().expect("Failed to read salt");
+        let salt = storage::try_get_salt().expect("Failed to read salt");
 
         (master, salt)
     } else {
@@ -22,13 +22,13 @@ fn main() {
             .interact()
             .expect("Failed to read master password");
 
-        let salt = passman::storage::generate_salt();
+        let salt = storage::generate_salt();
         (master, salt)
     };
 
-    let key = passman::crypto::derive_key(SecretString::new(master.into_boxed_str()), &salt)
+    let key = crypto::derive_key(SecretString::new(master.into_boxed_str()), &salt)
         .expect("Failed to derive key");
-    let mut entries = passman::storage::load_entries(&key).expect("Failed to read entries");
+    let mut entries = storage::load_entries(&key).expect("Failed to read entries");
 
     loop {
         let choices = &[
@@ -91,24 +91,24 @@ fn generate_password() {
         _ => 16,
     };
 
-    let password = passman::crypto::generate_password(length);
+    let password = crypto::generate_password(length);
 
     println!("Generated password: {}", password);
 }
 
-fn remove_password(entries: &mut Vec<Entry>, key: &[u8; 32], salt: &[u8; 16]) {
+fn remove_password(entries: &mut Vec<Entry>, key: &[u8; 32], salt: &[u8]) {
     let uuid = Input::<String>::new()
         .with_prompt("Uuid")
         .interact()
         .expect("Failed to read uuid name");
 
     entries.retain(|e| e.uuid != uuid);
-    passman::storage::save_entries(entries, key, salt).expect("Failed to save entries");
+    storage::save_entries(entries, key, salt).expect("Failed to save entries");
 
     println!("Password removed successfully!");
 }
 
-fn add_password(entries: &mut Vec<Entry>, key: &[u8; 32], salt: &[u8; 16]) {
+fn add_password(entries: &mut Vec<Entry>, key: &[u8; 32], salt: &[u8]) {
     let service = Input::<String>::new()
         .with_prompt("Service name")
         .interact()
@@ -139,7 +139,7 @@ fn add_password(entries: &mut Vec<Entry>, key: &[u8; 32], salt: &[u8; 16]) {
     };
 
     entries.push(entry);
-    passman::storage::save_entries(entries, key, salt).expect("Failed to save entries");
+    storage::save_entries(entries, key, salt).expect("Failed to save entries");
 
     println!("Password added successfully!");
 }

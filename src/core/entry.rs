@@ -1,13 +1,30 @@
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
+use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Entry {
-    pub uuid: String,
+    uuid: String,
     pub service: String,
     pub username: String,
     pub password: String,
     pub notes: Option<String>,
+}
+
+impl Entry {
+    pub fn new(service: String, username: String, password: String, notes: Option<String>) -> Self {
+        Self {
+            uuid: Uuid::new_v4().to_string(),
+            service,
+            username,
+            password,
+            notes,
+        }
+    }
+    
+    pub fn uuid(&self) -> &str {
+        &self.uuid
+    }
 }
 
 impl Display for Entry {
