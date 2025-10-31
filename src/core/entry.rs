@@ -21,10 +21,6 @@ impl Entry {
             notes,
         }
     }
-    
-    pub fn uuid(&self) -> &str {
-        &self.uuid
-    }
 }
 
 impl Display for Entry {

@@ -1,11 +1,10 @@
-use crate::gui::state::State;
+use crate::core::entry::Entry;
+use crate::gui::state::{Cmd, State};
 use eframe::egui;
 use egui_extras::{Column, TableBuilder};
 
 pub fn ui(ui: &mut egui::Ui, state: &mut State) {
     let available_height = ui.available_height();
-
-    let mut cmd = Command::new();
 
     let table = TableBuilder::new(ui)
         .striped(true)
@@ -34,39 +33,53 @@ pub fn ui(ui: &mut egui::Ui, state: &mut State) {
             });
         })
         .body(|mut body| {
-            for (idx, entry) in state.list().iter().enumerate() {
+            let mut cmd = None;
+
+            for (idx, entry) in state
+                .list()
+                .iter()
+                .filter(|e| entry_filter(e, &state.main.search_line))
+                .enumerate()
+            {
                 body.row(50.0, |mut row| {
                     row.col(|ui| {
-                        interact_label(ui, idx, &entry.service, &mut cmd);
+                        interact_label(ui, idx, &entry.service, &mut cmd, false);
                     });
                     row.col(|ui| {
-                        interact_label(ui, idx, &entry.username, &mut cmd);
+                        interact_label(ui, idx, &entry.username, &mut cmd, false);
                     });
                     row.col(|ui| {
-                        interact_label(ui, idx, &entry.password, &mut cmd);
+                        interact_label(ui, idx, &entry.password, &mut cmd, true);
                     });
                     row.col(|ui| {
                         ui.label(entry.notes.as_deref().unwrap_or_default());
                     });
                 });
+
+                if cmd.is_some() {
+                    break;
+                }
+            }
+
+            if let Some(cmd) = cmd {
+                state.set_cmd(cmd);
             }
         });
-
-    match cmd.0 {
-        Kind::EditEntry(idx) => {
-            state.edit_data(idx);
-            state.main().edit();
-        }
-        Kind::RemoveEntry(idx) => {}
-        Kind::None => {}
-    }
 }
 
-fn interact_label(ui: &mut egui::Ui, idx: usize, text: &str, cmd: &mut Command) {
+fn interact_label(
+    ui: &mut egui::Ui,
+    idx: usize,
+    text: &str,
+    cmd: &mut Option<Cmd>,
+    is_password: bool,
+) {
     use egui::{CursorIcon, Label, Sense};
 
+    let visible_text = if is_password { "*******" } else { text };
+
     let resp = ui
-        .add(Label::new(text).sense(Sense::click()))
+        .add(Label::new(visible_text).sense(Sense::click()))
         .on_hover_text("Click to copy");
 
     if resp.hovered() {
@@ -78,30 +91,22 @@ fn interact_label(ui: &mut egui::Ui, idx: usize, text: &str, cmd: &mut Command) 
 
     resp.context_menu(|ui| {
         if ui.button("Edit").clicked() {
-            cmd.set(Kind::EditEntry(idx));
+            *cmd = Some(Cmd::EditorUpdate(idx));
         }
         if ui.button("Remove").clicked() {
-            cmd.set(Kind::RemoveEntry(idx));
+            *cmd = Some(Cmd::RemoveEntry(idx));
         }
     });
 }
 
-enum Kind {
-    EditEntry(usize),
-    RemoveEntry(usize),
-    None,
-}
-
-struct Command(Kind);
-
-impl Command {
-    pub fn new() -> Self {
-        Command(Kind::None)
-    }
-
-    pub fn set(&mut self, kind: Kind) {
-        if matches!(self.0, Kind::None) && !matches!(kind, Kind::None) {
-            self.0 = kind;
-        }
-    }
+fn entry_filter(entry: &Entry, search_line: &str) -> bool {
+    entry
+        .service
+        .to_lowercase()
+        .contains(search_line.to_lowercase().as_str())
+        || entry
+            .username
+            .to_lowercase()
+            .contains(search_line.to_lowercase().as_str())
+        || search_line.is_empty()
 }

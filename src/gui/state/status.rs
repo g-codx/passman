@@ -1,6 +1,5 @@
 use eframe::egui::Color32;
 
-#[derive(Default)]
 pub struct Status {
     is_unlocked: bool,
     message: StatusMessage,
@@ -14,33 +13,27 @@ impl Status {
 
     pub fn status(&self) -> String {
         match &self.message {
-            StatusMessage::Locked => "🔒 Locked".to_string(),
-            StatusMessage::Unlocked => "🔓 Unlocked".to_string(),
-            StatusMessage::Error(e) => format!("❎ : {e}"),
-            StatusMessage::Message(m) => format!("✅ : {m}"),
+            StatusMessage::Locked => "🔒  Locked".to_string(),
+            StatusMessage::Unlocked => "🔓  Unlocked".to_string(),
+            StatusMessage::Error(e) => format!("❎  {e}"),
+            StatusMessage::Message(m) => format!("✅  {m}"),
         }
-    }
-
-    pub fn lock(&mut self) {
-        self.is_unlocked = false;
-        self.message = StatusMessage::Locked;
-        self.color = Color32::RED;
     }
 
     pub fn unlock(&mut self) {
         self.is_unlocked = true;
         self.message = StatusMessage::Unlocked;
-        self.color = Color32::GREEN;
+        self.color = Color32::LIGHT_GREEN;
     }
 
     pub fn error(&mut self, err: String) {
         self.message = StatusMessage::Error(err);
-        self.color = Color32::RED;
+        self.color = Color32::LIGHT_RED;
     }
 
     pub fn message(&mut self, msg: String) {
         self.message = StatusMessage::Message(msg);
-        self.color = Color32::GREEN;
+        self.color = Color32::LIGHT_GREEN;
     }
 
     pub fn color(&self) -> Color32 {
@@ -55,4 +48,14 @@ enum StatusMessage {
     Unlocked,
     Error(String),
     Message(String),
+}
+
+impl Default for Status {
+    fn default() -> Self {
+        Self {
+            is_unlocked: false,
+            message: Default::default(),
+            color: Color32::LIGHT_RED,
+        }
+    }
 }

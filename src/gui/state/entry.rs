@@ -22,8 +22,8 @@ impl Entries {
         Ok(())
     }
 
-    pub fn remove(&mut self, uuid: &str, key: &[u8], salt: &[u8]) -> error::Result<()> {
-        self.retain(|e| e.uuid() != uuid);
+    pub fn remove(&mut self, idx: usize, key: &[u8], salt: &[u8]) -> error::Result<()> {
+        self.0.remove(idx);
         self.save(key, salt)?;
         Ok(())
     }

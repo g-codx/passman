@@ -1,4 +1,3 @@
-use crate::core::crypto;
 use crate::gui::state::State;
 use crate::gui::view;
 use eframe::egui;

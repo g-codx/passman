@@ -1,6 +1,6 @@
 pub mod auth;
-mod status;
+mod edit;
 pub mod main;
 mod menu;
-mod edit;
+mod status;
 mod table;
