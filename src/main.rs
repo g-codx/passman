@@ -1,7 +1,7 @@
 #[cfg(feature = "cmd")]
 mod cmd;
 mod core;
-// #[cfg(feature = "gui")]
+#[cfg(feature = "gui")]
 mod gui;
 
 fn main() {
@@ -10,6 +10,6 @@ fn main() {
     cmd::run();
 
     //cargo run --features gui --release
-    // #[cfg(feature = "gui")]
+    #[cfg(feature = "gui")]
     gui::run();
 }

@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Entry {
-    uuid: String,
+    pub uuid: String,
     pub service: String,
     pub username: String,
     pub password: String,

@@ -3,7 +3,6 @@ use crate::core::{crypto, storage};
 use dialoguer::{Input, Password, Select};
 use secrecy::SecretString;
 use std::path::Path;
-use uuid::Uuid;
 
 pub fn run() {
     let (master, salt) = if Path::new(crate::core::FILE).exists() {
@@ -130,13 +129,13 @@ fn add_password(entries: &mut Vec<Entry>, key: &[u8; 32], salt: &[u8]) {
         .interact()
         .expect("Failed to read notes");
 
-    let entry = Entry {
-        uuid: Uuid::new_v4().to_string(),
-        service,
-        username,
-        password,
-        notes: if notes.is_empty() { None } else { Some(notes) },
+    let notes = if notes.trim().is_empty() {
+        None
+    } else {
+        Some(notes.trim().to_owned())
     };
+
+    let entry = Entry::new(service, username, password, notes);
 
     entries.push(entry);
     storage::save_entries(entries, key, salt).expect("Failed to save entries");
