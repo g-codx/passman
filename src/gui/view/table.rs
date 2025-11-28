@@ -35,26 +35,23 @@ pub fn ui(ui: &mut egui::Ui, state: &mut State) {
         .body(|mut body| {
             let mut cmd = None;
 
-            for (idx, entry) in state
-                .list()
-                .iter()
-                .filter(|e| entry_filter(e, &state.main.search_line))
-                .enumerate()
-            {
-                body.row(50.0, |mut row| {
-                    row.col(|ui| {
-                        interact_label(ui, idx, &entry.service, &mut cmd, false);
+            for (idx, entry) in state.list().iter().enumerate() {
+                if search_match(entry, &state.main.search_line) {
+                    body.row(50.0, |mut row| {
+                        row.col(|ui| {
+                            interact_label(ui, idx, &entry.service, &mut cmd, false);
+                        });
+                        row.col(|ui| {
+                            interact_label(ui, idx, &entry.username, &mut cmd, false);
+                        });
+                        row.col(|ui| {
+                            interact_label(ui, idx, &entry.password, &mut cmd, true);
+                        });
+                        row.col(|ui| {
+                            ui.label(entry.notes.as_deref().unwrap_or_default());
+                        });
                     });
-                    row.col(|ui| {
-                        interact_label(ui, idx, &entry.username, &mut cmd, false);
-                    });
-                    row.col(|ui| {
-                        interact_label(ui, idx, &entry.password, &mut cmd, true);
-                    });
-                    row.col(|ui| {
-                        ui.label(entry.notes.as_deref().unwrap_or_default());
-                    });
-                });
+                }
 
                 if cmd.is_some() {
                     break;
@@ -99,7 +96,7 @@ fn interact_label(
     });
 }
 
-fn entry_filter(entry: &Entry, search_line: &str) -> bool {
+fn search_match(entry: &Entry, search_line: &str) -> bool {
     entry
         .service
         .to_lowercase()
