@@ -5,3 +5,4 @@ mod menu;
 mod security;
 mod status;
 mod table;
+mod widgets;
