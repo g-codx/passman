@@ -7,6 +7,11 @@ pub enum Cmd {
     RemoveEntry(usize),
     EditorNew,
     EditorUpdate(usize),
+    Backup,
+    Export,
+    Lock,
+    OpenChangePassword,
+    OpenSettings,
 }
 
 impl Command {

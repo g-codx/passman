@@ -2,8 +2,14 @@ use crate::gui::state::State;
 use eframe::egui;
 use eframe::egui::{Color32, RichText, WidgetText};
 
-pub fn ui(ctx: &egui::Context, state: &mut State) {
-    egui::CentralPanel::default().show(ctx, |ui| {
+pub fn ui(ui: &mut egui::Ui, state: &mut State) {
+    egui::Panel::bottom("status").show_inside(ui, |ui| {
+        ui.horizontal(|ui| {
+            ui.label(WidgetText::from(state.status().to_string()).color(state.text_color()));
+        });
+    });
+
+    egui::CentralPanel::default().show_inside(ui, |ui| {
         ui.vertical_centered(|ui| {
             ui.add_space(ui.available_height() / 3.);
 
@@ -32,11 +38,6 @@ pub fn ui(ctx: &egui::Context, state: &mut State) {
             {
                 state.load();
             }
-        });
-    });
-    egui::TopBottomPanel::bottom("status").show(ctx, |ui| {
-        ui.horizontal(|ui| {
-            ui.label(WidgetText::from(state.status().to_string()).color(state.text_color()));
         });
     });
 }

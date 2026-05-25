@@ -1,6 +1,8 @@
 use crate::core::entry::Entry;
 use crate::gui::error;
 use eframe::egui::Color32;
+use secrecy::SecretString;
+use secrecy::zeroize::Zeroize;
 use std::mem;
 
 pub struct Main {
@@ -42,6 +44,20 @@ impl Main {
             || self.username.trim().is_empty()
             || self.password.trim().is_empty()
     }
+
+    pub fn clear_editor_secrets(&mut self) {
+        self.password.zeroize();
+        self.password.shrink_to_fit();
+    }
+
+    pub fn reset_editor(&mut self) {
+        self.idx = None;
+        self.service.clear();
+        self.username.clear();
+        self.clear_editor_secrets();
+        self.notes.clear();
+        self.show = false;
+    }
 }
 
 impl Main {
@@ -53,14 +69,25 @@ impl Main {
         let idx = mem::take(&mut self.idx);
         let service = mem::take(&mut self.service).trim().to_owned();
         let username = mem::take(&mut self.username).trim().to_owned();
-        let password = mem::take(&mut self.password).trim().to_owned();
+        let password = mem::take(&mut self.password);
+        let password = password.trim().to_string();
         let notes = if self.notes.trim().is_empty() {
             None
         } else {
             Some(mem::take(&mut self.notes).trim().to_owned())
         };
 
-        Ok((idx, Entry::new(service, username, password, notes)))
+        self.clear_editor_secrets();
+
+        Ok((
+            idx,
+            Entry::new(
+                service,
+                username,
+                SecretString::new(password.into_boxed_str()),
+                notes,
+            ),
+        ))
     }
 }
 

@@ -26,6 +26,12 @@ impl Status {
         self.color = Color32::LIGHT_GREEN;
     }
 
+    pub fn lock(&mut self) {
+        self.is_unlocked = false;
+        self.message = StatusMessage::Locked;
+        self.color = Color32::LIGHT_RED;
+    }
+
     pub fn error(&mut self, err: String) {
         self.message = StatusMessage::Error(err);
         self.color = Color32::LIGHT_RED;

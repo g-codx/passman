@@ -2,14 +2,14 @@ use crate::gui::state::{Cmd, EditorState, State};
 use eframe::egui;
 use eframe::egui::Color32;
 
-pub fn ui(ctx: &egui::Context, state: &mut State) {
+pub fn ui(ui: &mut egui::Ui, state: &mut State) {
     let bg_color = state.main.color;
     let mut open = state.main.is_open();
 
     egui::Window::new("Entry")
         .default_width(400.0)
         .open(&mut open)
-        .show(ctx, |ui| {
+        .show(ui.ctx(), |ui| {
             ui.vertical(|ui| {
                 ui.horizontal(|ui| {
                     ui.add_sized([100.0, 0.0], egui::Label::new("Service ❗"))
@@ -90,5 +90,6 @@ pub fn ui(ctx: &egui::Context, state: &mut State) {
 
     if !open {
         state.main.editor_state = EditorState::Close;
+        state.main.clear_editor_secrets();
     }
 }

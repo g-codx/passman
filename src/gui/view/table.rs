@@ -45,7 +45,7 @@ pub fn ui(ui: &mut egui::Ui, state: &mut State) {
                             interact_label(ui, idx, &entry.username, &mut cmd, false);
                         });
                         row.col(|ui| {
-                            interact_label(ui, idx, &entry.password, &mut cmd, true);
+                            interact_label(ui, idx, entry.password(), &mut cmd, true);
                         });
                         row.col(|ui| {
                             ui.label(entry.notes.as_deref().unwrap_or_default());

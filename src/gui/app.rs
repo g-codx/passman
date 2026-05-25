@@ -7,11 +7,16 @@ use std::ops::{Deref, DerefMut};
 pub struct PassmanApp(State);
 
 impl eframe::App for PassmanApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn logic(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        self.register_activity(ctx);
+        self.schedule_idle_check(ctx);
+    }
+
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         if self.is_locked() {
-            view::auth::ui(ctx, self);
+            view::auth::ui(ui, self);
         } else {
-            view::main::ui(ctx, self);
+            view::main::ui(ui, self);
         }
     }
 }

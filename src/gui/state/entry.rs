@@ -27,6 +27,10 @@ impl Entries {
         self.save(key, salt)?;
         Ok(())
     }
+
+    pub fn clear(&mut self) {
+        self.0.clear();
+    }
 }
 
 impl Deref for Entries {
