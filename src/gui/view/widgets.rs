@@ -1,15 +1,35 @@
 use eframe::egui::{
     self, Color32, CornerRadius, Frame, Id, Key, Modifiers, Response, Sense, Stroke, TextEdit, Ui,
-    Vec2,
+    Vec2, Visuals,
 };
 
-const SEARCH_HEIGHT: f32 = 20.0;
+const TOOLBAR_ITEM_HEIGHT: f32 = 20.0;
+
+fn toolbar_frame(visuals: &Visuals) -> Frame {
+    Frame::new()
+        .fill(visuals.extreme_bg_color)
+        .stroke(Stroke::new(
+            1.0,
+            visuals.widgets.inactive.bg_stroke.color,
+        ))
+        .corner_radius(CornerRadius::same(7))
+        .inner_margin(egui::Margin::symmetric(4, 2))
+        .outer_margin(egui::Margin::symmetric(0, 5))
+}
+
+pub fn toolbar_item<R>(ui: &mut Ui, content: impl FnOnce(&mut Ui) -> R) -> R {
+    let visuals = ui.style().visuals.clone();
+    toolbar_frame(&visuals)
+        .show(ui, |ui| {
+            ui.set_height(TOOLBAR_ITEM_HEIGHT);
+            content(ui)
+        })
+        .inner
+}
 
 pub fn search_bar(ui: &mut Ui, query: &mut String) -> Response {
     let search_id = Id::new("vault_search");
     let visuals = ui.style().visuals.clone();
-    let fill = visuals.extreme_bg_color;
-    let stroke = Stroke::new(1.0, visuals.widgets.inactive.bg_stroke.color);
     let text_color = visuals.strong_text_color();
     let hint_color = visuals.weak_text_color();
 
@@ -20,14 +40,9 @@ pub fn search_bar(ui: &mut Ui, query: &mut String) -> Response {
     let bar_width = ui.available_width().max(80.0);
     let edit_width = (bar_width - 52.0).max(40.0);
 
-    Frame::new()
-        .fill(fill)
-        .stroke(stroke)
-        .corner_radius(CornerRadius::same(10))
-        .inner_margin(egui::Margin::symmetric(8, 4))
-        .show(ui, |ui| {
+    toolbar_frame(&visuals).show(ui, |ui| {
             ui.set_width(bar_width);
-            ui.set_height(SEARCH_HEIGHT);
+            ui.set_height(TOOLBAR_ITEM_HEIGHT);
             ui.horizontal(|ui| {
                 ui.spacing_mut().item_spacing.x = 6.0;
                 ui.label(egui::RichText::new("🔍").color(hint_color));
@@ -35,7 +50,7 @@ pub fn search_bar(ui: &mut Ui, query: &mut String) -> Response {
                 let edit = TextEdit::singleline(query)
                     .id(search_id)
                     .desired_width(edit_width)
-                    .min_size(Vec2::new(edit_width, SEARCH_HEIGHT - 8.0))
+                    .min_size(Vec2::new(edit_width, TOOLBAR_ITEM_HEIGHT - 8.0))
                     .frame(Frame::NONE)
                     .text_color(text_color)
                     .hint_text(egui::RichText::new("Search…").color(hint_color));
@@ -45,7 +60,7 @@ pub fn search_bar(ui: &mut Ui, query: &mut String) -> Response {
                 if !query.is_empty() {
                     if ui
                         .add(
-                            egui::Label::new(egui::RichText::new("✕").color(hint_color))
+                            egui::Label::new(egui::RichText::new("✖").color(hint_color))
                                 .sense(Sense::click()),
                         )
                         .on_hover_text("Clear")

@@ -8,6 +8,7 @@ enum CopyField {
     Service,
     Username,
     Password,
+    Description,
 }
 
 impl CopyField {
@@ -16,6 +17,7 @@ impl CopyField {
             Self::Service => "Copy service",
             Self::Username => "Copy username",
             Self::Password => "Copy password",
+            Self::Description => "Copy description",
         }
     }
 }
@@ -57,7 +59,7 @@ pub fn ui(ui: &mut egui::Ui, state: &mut State) {
                 if search_match(entry, &search) {
                     body.row(50.0, |mut row| {
                         row.col(|ui| {
-                            interact_label(
+                            interact_cell(
                                 ui,
                                 idx,
                                 &entry.service,
@@ -67,7 +69,7 @@ pub fn ui(ui: &mut egui::Ui, state: &mut State) {
                             );
                         });
                         row.col(|ui| {
-                            interact_label(
+                            interact_cell(
                                 ui,
                                 idx,
                                 &entry.username,
@@ -77,7 +79,7 @@ pub fn ui(ui: &mut egui::Ui, state: &mut State) {
                             );
                         });
                         row.col(|ui| {
-                            interact_label(
+                            interact_cell(
                                 ui,
                                 idx,
                                 entry.password(),
@@ -87,7 +89,14 @@ pub fn ui(ui: &mut egui::Ui, state: &mut State) {
                             );
                         });
                         row.col(|ui| {
-                            ui.label(entry.notes.as_deref().unwrap_or_default());
+                            interact_cell(
+                                ui,
+                                idx,
+                                entry.notes.as_deref().unwrap_or_default(),
+                                &mut cmd,
+                                false,
+                                CopyField::Description,
+                            );
                         });
                     });
                 }
@@ -103,7 +112,7 @@ pub fn ui(ui: &mut egui::Ui, state: &mut State) {
         });
 }
 
-fn interact_label(
+fn interact_cell(
     ui: &mut egui::Ui,
     idx: usize,
     text: &str,
@@ -117,9 +126,13 @@ fn interact_label(
     let copy_label = field.copy_label();
     let text_owned = text.to_owned();
 
-    let resp = ui
-        .add(Label::new(visible_text).sense(Sense::click()))
-        .on_hover_text(format!("{copy_label} (click)"));
+    let size = ui.available_size();
+    let (rect, resp) = ui.allocate_exact_size(size, Sense::click());
+    let resp = resp.on_hover_text(format!("{copy_label} (click)"));
+
+    if ui.is_rect_visible(rect) {
+        ui.put(rect, Label::new(visible_text));
+    }
 
     if resp.hovered() {
         ui.output_mut(|o| o.cursor_icon = CursorIcon::Copy);
