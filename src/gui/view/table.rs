@@ -127,12 +127,10 @@ fn interact_cell(
     let text_owned = text.to_owned();
 
     let size = ui.available_size();
-    let (rect, resp) = ui.allocate_exact_size(size, Sense::click());
-    let resp = resp.on_hover_text(format!("{copy_label} (click)"));
-
-    if ui.is_rect_visible(rect) {
-        ui.put(rect, Label::new(visible_text));
-    }
+    let (rect, _) = ui.allocate_exact_size(size, Sense::hover());
+    let resp = ui
+        .put(rect, Label::new(visible_text).sense(Sense::click()))
+        .on_hover_text(format!("{copy_label} (click)"));
 
     if resp.hovered() {
         ui.output_mut(|o| o.cursor_icon = CursorIcon::Copy);
